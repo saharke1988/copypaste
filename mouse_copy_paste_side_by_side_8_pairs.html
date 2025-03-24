@@ -1,0 +1,155 @@
+
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>משחק העתק הדבק - תיבות מותאמות</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #e1f5fe, #fff8e1);
+            direction: rtl;
+        }
+        h1 {
+            color: #0077cc;
+        }
+        #score {
+            font-size: 22px;
+            font-weight: bold;
+            color: #003366;
+            margin: 10px 0;
+        }
+        .pair-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin: 10px auto;
+        }
+        .copy-box, .paste-box {
+            width: 180px;
+            height: 40px;
+            font-size: 18px;
+            text-align: center;
+            border-radius: 6px;
+            border: 2px solid #666;
+        }
+        .copy-box {
+            background-color: #dcedc8;
+        }
+        .paste-box {
+            background-color: #fff9c4;
+        }
+        .success {
+            background-color: #c8e6c9 !important;
+            color: #2e7d32;
+            font-weight: bold;
+        }
+        #timer {
+            font-size: 20px;
+            color: #d32f2f;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>משחק העתק הדבק - תיבות מותאמות</h1>
+    <p>העתק/י את המילה מכל תיבת העתק והדבק/י בתיבה הצמודה לה</p>
+    <p id="score">תוצאה: 0</p>
+    <p id="timer">זמן שנותר: 90 שניות</p>
+
+    <div id="pairsContainer">
+        <!-- Copy-Paste pairs will go here -->
+    </div>
+
+    <script>
+        const scoreDisplay = document.getElementById("score");
+        const timerDisplay = document.getElementById("timer");
+        const pairsContainer = document.getElementById("pairsContainer");
+
+        let score = 0;
+        let timeLeft = 90;
+        let gameOver = false;
+
+        const word = "העתק";
+        const totalPairs = 8;
+
+        function updateScore() {
+            scoreDisplay.textContent = "תוצאה: " + score;
+
+            if (score >= 100 && !gameOver) {
+                gameOver = true;
+                clearInterval(timerInterval);
+                alert("כל הכבוד! הקוד למעבר לתחנה הבאה הוא 2365");
+            }
+        }
+
+        function updateTimer() {
+            timerDisplay.textContent = "זמן שנותר: " + timeLeft + " שניות";
+            if (timeLeft <= 0) {
+                endGame();
+            }
+        }
+
+        function endGame() {
+            if (!gameOver) {
+                gameOver = true;
+                alert("המשחק נגמר! נסה שוב");
+                clearInterval(timerInterval);
+            }
+        }
+
+        function initGame() {
+            for (let i = 0; i < totalPairs; i++) {
+                const container = document.createElement("div");
+                container.className = "pair-container";
+
+                const copyInput = document.createElement("input");
+                copyInput.type = "text";
+                copyInput.className = "copy-box";
+                copyInput.value = word;
+                copyInput.setAttribute("readonly", true);
+                copyInput.setAttribute("data-id", i);
+                copyInput.addEventListener("click", function () {
+                    copyInput.select();
+                });
+
+                const pasteInput = document.createElement("input");
+                pasteInput.type = "text";
+                pasteInput.className = "paste-box";
+                pasteInput.placeholder = "הדבק כאן";
+                pasteInput.setAttribute("data-id", i);
+
+                pasteInput.addEventListener("input", function () {
+                    if (gameOver) return;
+
+                    if (pasteInput.value.trim() === word) {
+                        score += 10;
+                        pasteInput.value = "כל הכבוד!";
+                        pasteInput.classList.add("success");
+                        pasteInput.disabled = true;
+                        updateScore();
+                    }
+                });
+
+                container.appendChild(copyInput);
+                container.appendChild(pasteInput);
+                pairsContainer.appendChild(container);
+            }
+        }
+
+        // Start game
+        initGame();
+        updateScore();
+
+        const timerInterval = setInterval(() => {
+            if (!gameOver) {
+                timeLeft--;
+                updateTimer();
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
